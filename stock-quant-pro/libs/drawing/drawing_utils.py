@@ -112,7 +112,9 @@ def draw_stock_with_multi_periods(code_id, periods, fname, index=False):
         draw_macd(ax_macd, data)        
 
     plt.grid()
-    plt.savefig(fname)    
+    plt.savefig(fname)  
+    plt.close(fig)  
+    
 #     plt.show()
 
     return True

@@ -45,6 +45,8 @@ def send_alert_email(code_id, subject, body):
 
 if __name__ == '__main__':
     
+    start_time = datetime.now()
+    
     stock_lst = db.get_stock_list()
     while True:
         log.info("====New loop start====")
@@ -66,7 +68,9 @@ if __name__ == '__main__':
             if is_check_now:
                 send_alert_email(code_id, email_subject, "Please check " + code_id)
             
-            
+        if (datetime.now() - start_time).total_seconds() > 15 * 60:
+            log.info("Market stop now.")
+            break    
 #         time.sleep(60) 
             
     

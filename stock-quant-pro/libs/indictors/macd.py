@@ -66,7 +66,7 @@ def is_macd_golden_cross_now(code_id, ktype):
     
     if bar15.values[-2] < 0 and bar15.values[-1] >= 0 and db.is_alert_needed(code_id, ktype):
         db.update_alert_time(code_id, ktype)
-        log.info("stock " + code_id + " has a MACD golden crosss for" + ktype + "F period ")
+        log.info("stock " + code_id + " has a MACD golden crosss for " + ktype + "F period ")
         return True
     
     return False
