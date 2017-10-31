@@ -15,8 +15,8 @@ import talib as tl
 
 def _ewma(N, m, expma, prices):
     '''
-        指数平滑均线函数.
-        以prices计算，可以选择收盘、开盘价等价格，period为时间周期，
+    指数平滑均线函数.
+    以prices计算，可以选择收盘、开盘价等价格，period为时间周期，
     m用于计算平滑系数a=m/(period+1)，exp_ma为前一日值指数评价值
     '''
     a = m / (N + 1.0)

@@ -42,7 +42,7 @@ def get_attachment(filename):
 
 def send_email(to_addr, subject, email_body, file_list=None):
     '''
-    send the pylint result to the owner
+    send the email to users
     '''
 
     html_start = '<font face="Courier New, Courier, monospace"><pre>'

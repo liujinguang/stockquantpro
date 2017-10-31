@@ -10,7 +10,8 @@ Created on Oct 31, 2017
 from datetime import datetime, timedelta
 
 if __name__ == '__main__':
-    a = datetime.now() + timedelta(minutes=10)
+    a = datetime.now() 
 
-    b =  a - datetime.now()
-    print b.total_seconds()
+    print a.strftime("%Y-%m-%d-%H-%M")
+#     b =  a - datetime.now()
+#     print b.total_seconds()

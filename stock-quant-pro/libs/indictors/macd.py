@@ -8,12 +8,15 @@ Created on 2017年10月30日
 
 import pandas as pd
 import tushare as ts
+import database.db as db
 from utils.time_utils import get_start_date
+from utils.log import log
+
 
 def _expma(period, m, exp_ma, prices):
     '''
-        指数平滑均线函数.
-        以prices计算，可以选择收盘、开盘价等价格，period为时间周期，
+    指数平滑均线函数.
+    以prices计算，可以选择收盘、开盘价等价格，period为时间周期，
     m用于计算平滑系数a=m/(period+1)，exp_ma为前一日值指数评价值
     '''
     a = m / (period + 1.0)
@@ -25,13 +28,13 @@ def macd(prices, fast=12, slow=26, signal=9, m=2.0):
     
     26日EMA的计算：EMA26 = 前一日EMA26 X 25/27 + 今日收盘 X 2/27
     
-        差离值（DIF）的计算： DIF = EMA12 - EMA26，即为talib-MACD返回值macd
+    差离值（DIF）的计算： DIF = EMA12 - EMA26，即为talib-MACD返回值macd
     
-        根据差离值计算其9日的EMA，即离差平均值，是所求的DEA值。
-        今日DEA = （前一日DEA X 8/10 + 今日DIF X 2/10），即为talib-MACD返回值signal
+    根据差离值计算其9日的EMA，即离差平均值，是所求的DEA值。
+    今日DEA = （前一日DEA X 8/10 + 今日DIF X 2/10），即为talib-MACD返回值signal
     
     DIF与它自己的移动平均之间差距的大小一般BAR=（DIF-DEA)2，即为MACD柱状图。
-        但是talib中MACD的计算是bar = (dif-dea)1    
+    但是talib中MACD的计算是bar = (dif-dea)1    
     '''
     expma12_1 = pd.ewma(prices, span=fast)  
     expma26_1 = pd.ewma(prices, span=slow) 
@@ -48,11 +51,25 @@ def macd(prices, fast=12, slow=26, signal=9, m=2.0):
 def get_stock_macd(code_id, ktype, index=False):
     '''
     '''
-    start = get_start_date(ktype)
-    data = ts.get_k_data(code_id, ktype=ktype, index=index, start=start)
-    data = data[data.date > start]
+#     start = get_start_date(ktype)
+    data = ts.get_k_data(code_id, ktype=ktype, index=index)
+#     data = data[data.date > start]
     
     return macd(data['close'])
+
+def is_macd_golden_cross_now(code_id, ktype):
+    '''
+    is the MACD in golden cross status
+    '''
+    log.info("Start to check " + code_id + " " + ktype + "F MACD")
+    diff15, dea15, bar15 = get_stock_macd(code_id, ktype, db.is_index(code_id))
+    
+    if bar15.values[-2] < 0 and bar15.values[-1] >= 0 and db.is_alert_needed(code_id, ktype):
+        db.update_alert_time(code_id, ktype)
+        log.info("stock " + code_id + " has a MACD golden crosss for" + ktype + "F period ")
+        return True
+    
+    return False
     
 if __name__ == '__main__':
     pass
