@@ -6,7 +6,7 @@ Created on 2017年10月30日
 @author: bob
 '''
 
-from libs.indictors.ema import ema
+from indictors.ema import ema
 
 import tushare as ts
 import matplotlib.pyplot as plt

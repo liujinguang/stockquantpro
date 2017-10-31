@@ -7,6 +7,8 @@ Created on 2017年10月30日
 '''
 
 import pandas as pd
+import tushare as ts
+from utils.time_utils import get_start_date
 
 def _expma(period, m, exp_ma, prices):
     '''
@@ -40,8 +42,17 @@ def macd(prices, fast=12, slow=26, signal=9, m=2.0):
     diff2 = expma12_2 - expma26_2
     dea2 = pd.ewma(diff2, span=signal)
     bar2 = 2 * (diff2 - dea2)
-
+    
     return diff2, dea2, bar2
 
+def get_stock_macd(code_id, ktype, index=False):
+    '''
+    '''
+    start = get_start_date(ktype)
+    data = ts.get_k_data(code_id, ktype=ktype, index=index, start=start)
+    data = data[data.date > start]
+    
+    return macd(data['close'])
+    
 if __name__ == '__main__':
     pass
