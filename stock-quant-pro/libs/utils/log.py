@@ -28,7 +28,7 @@ import platform
 if platform.system() == "Linux":
     log_path = '/var/quant'
 else:
-    log_path = 'd:\quant'
+    log_path = 'd:\\quant'
 
 
 if not os.path.exists(log_path):

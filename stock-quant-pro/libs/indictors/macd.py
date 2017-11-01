@@ -48,21 +48,24 @@ def macd(prices, fast=12, slow=26, signal=9, m=2.0):
     
     return diff2, dea2, bar2
 
-def get_stock_macd(code_id, ktype, index=False):
+def get_stock_macd(code_id, ktype, data=None, index=False):
     '''
     '''
-#     start = get_start_date(ktype)
-    data = ts.get_k_data(code_id, ktype=ktype, index=index)
-#     data = data[data.date > start]
+    if data is None:
+        data = ts.get_k_data(code_id, ktype=ktype, index=index)
     
     return macd(data['close'])
 
-def is_macd_golden_cross_now(code_id, ktype):
+
+def is_macd_golden_cross_now(code_id, ktype, data=None, index=False):
     '''
     is the MACD in golden cross status
     '''
     log.info("Start to check " + code_id + " " + ktype + "F MACD")
-    diff, dea, bar = get_stock_macd(code_id, ktype, db.is_index(code_id))
+    if data is None:
+        data = ts.get_k_data(code_id, ktype=ktype, index=index)
+                
+    diff, dea, bar = get_stock_macd(code_id, ktype, data=data, index=index)
     
     #check the gold cross for this kind of period
     if bar.values[-2] < 0 and bar.values[-1] >= 0 and db.is_alert_needed(code_id, ktype):
@@ -70,10 +73,10 @@ def is_macd_golden_cross_now(code_id, ktype):
         log.info("stock " + code_id + " has a MACD golden crosss for " + ktype + "F period ")
         return True
     
-    #30F DIFF crosses the 0 axis
-    if ktype == "30" and diff.values[-2] < 0 and diff.values[-1] >=0: 
-        log.info("stock " + code_id + "a MACD crossing zero axis " + ktype + "F period ")
-        return True        
+#     #30F DIFF crosses the 0 axis
+#     if ktype == "30" and diff.values[-2] < 0 and diff.values[-1] >=0: 
+#         log.info("stock " + code_id + "a MACD crossing zero axis " + ktype + "F period ")
+#         return True        
     
     return False
     
