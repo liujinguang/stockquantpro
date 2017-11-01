@@ -11,7 +11,7 @@ from datetime import datetime
 from utils.log import log
 from indictors.macd import get_stock_macd, is_macd_golden_cross_now
 from utils.emails import send_email
-from drawing.drawing_utils import draw_stock_with_multi_periods
+from drawing.drawing_utils import draw_stock_with_multi_periods2
 
 import database.db as db
 import os
@@ -26,19 +26,22 @@ def send_alert_email(code_id, subject, body):
     
     fhead = "/home/hadoop/quant/" + datetime.now().strftime("%Y-%m-%d-%H-%M-") + code_id
     
-    fname = fhead + "-M-W.png"
-    if draw_stock_with_multi_periods(code_id, ("M", "W"), fname):
-        file_lst.append(fname)
- 
-    fname = fhead + "-60F-30F.png"
-    if draw_stock_with_multi_periods(code_id, ("60", "30"), fname):
-        file_lst.append(fname)
-  
-    fname = fhead + "-15F-5F.png"
-    if draw_stock_with_multi_periods(code_id, ("15", "5"), fname):
+#     fname = fhead + "-W-D.png"
+#     if draw_stock_with_multi_periods(code_id, ("W", "D"), fname):
+#         file_lst.append(fname)
+#  
+#     fname = fhead + "-60F-30F.png"
+#     if draw_stock_with_multi_periods(code_id, ("60", "30"), fname):
+#         file_lst.append(fname)
+#   
+#     fname = fhead + "-15F-5F.png"
+#     if draw_stock_with_multi_periods(code_id, ("15", "5"), fname):
+#         file_lst.append(fname)
+    fname = fhead + "-all-periods.png"
+    if draw_stock_with_multi_periods2(code_id, ("W", "D", "60", "30", "15", "5"), fname):
         file_lst.append(fname)
     
-    send_email("jliu@infinera.com", subject, body, file_lst)  
+    send_email("jliu@infinera.com", code_id + " " + subject, body, file_lst)  
     
 #     for f in file_lst:
 #         os.remove(f)    
@@ -66,11 +69,12 @@ if __name__ == '__main__':
                 
             #Send email if needs
             if is_check_now:
-                send_alert_email(code_id, email_subject, "Please check " + code_id)
+                send_alert_email(code_id, email_subject, "Please check " + code_id + " " + 
+                                 db.get_stock_name(code_id))
             
-        if (datetime.now() - start_time).total_seconds() > 15 * 60:
-            log.info("Market stop now.")
-            break    
+#         if (datetime.now() - start_time).total_seconds() > 15 * 60:
+#             log.info("Market stop now.")
+#             break    
 #         time.sleep(60) 
             
     

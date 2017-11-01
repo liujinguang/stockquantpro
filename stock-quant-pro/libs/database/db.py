@@ -114,6 +114,11 @@ def update_alert_time(code_id, ktype):
     else:
         stock_pool[code_id]["30F_alert_time"] = datetime.now()
 
+def get_stock_name(code_id):
+    '''
+    '''
+    return stock_pool[code_id]["name"]
+
 def get_alert_time(code_id, ktype):
     '''
     '''
