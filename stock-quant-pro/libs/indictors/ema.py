@@ -24,6 +24,16 @@ def is_prices_above_ema120(bid, data):
         return True
     else:
         return False
+    
+def is_prices_above_ema20(bid, data):
+    '''
+    '''
+    ema20 = ema(np.array(data['close']), 20)
+    if bid >= ema20[-1]:
+        log.info("==========EAM20:" + str(ema20[-1]) + ", bid:" + str(bid) + "============")
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     pass
