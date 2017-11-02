@@ -7,15 +7,21 @@ Created on Oct 30, 2017
 @author: hadoop
 '''
 
-from drawing.drawing_utils import draw_stock_with_multi_periods2
+from drawing.drawing_utils import draw_stock_with_multi_periods2,\
+    draw_stock_with_candlestick_macd
 import numpy as np
 import database.db as db
 from indictors.macd import get_stock_macd
+import platform
+import argparse
 
 if __name__ == '__main__':
     code_id = "002475"
-    fname = "/home/hadoop/" + code_id + "-month-week" + ".png"
-    draw_stock_with_multi_periods2(code_id, ("W", "D", "60", "30", "15", "5"), fname, index=False)
+    if platform.system() == "Linux":
+        fname = "/home/hadoop/" + code_id + "-month-week" + ".png"
+    else:
+        fname = 'd:\\quant\\' + code_id + "-month-week" + ".png"
+    draw_stock_with_candlestick_macd(code_id, ("W", "D", "60", "30", "15", "5"), fname, index=False)
 #     draw_stock_with_multi_periods(code_id, ("15", "5"), fname, index=True)
 #     num = 6    
 #     a = np.arange(1, 3*num + 1).reshape(3*num/2, 2)

@@ -34,6 +34,18 @@ def is_prices_above_ema20(bid, data):
         return True
     else:
         return False
+    
+def is_prices_above_ema_with_period(code_id, data, bid, period):
+    '''
+    Check if the prices is above the MA Period
+    '''
+    ema_tmp = ema(np.array(data['close']), period)
+    if bid >= ema_tmp[-1]:
+        log.info("==========Stock " + code_id + " EMA:" + str(ema_tmp[-1]) 
+                 + ", bid:" + str(bid) + "============")
+        return True
+    else:
+        return False    
 
 if __name__ == '__main__':
     pass

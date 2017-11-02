@@ -73,10 +73,10 @@ def is_macd_golden_cross_now(code_id, ktype, data=None, index=False):
         log.info("stock " + code_id + " has a MACD golden crosss for " + ktype + "F period ")
         return True
     
-#     #30F DIFF crosses the 0 axis
-#     if ktype == "30" and diff.values[-2] < 0 and diff.values[-1] >=0: 
-#         log.info("stock " + code_id + "a MACD crossing zero axis " + ktype + "F period ")
-#         return True        
+    #60F DIFF crosses the 0 axis
+    if ktype == "60" and diff.values[-2] < 0 and diff.values[-1] >=0: 
+        log.info("stock " + code_id + "a MACD crossing zero axis " + ktype + "F period ")
+        return True        
     
     return False
     

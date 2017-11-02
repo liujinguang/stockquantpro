@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.finance as mpf
 import numpy as np
 
-def draw_candle_stick(ax, data):
+def draw_candle_stick(ax, data, pnum=120):
     '''
     draw candle sticks
     '''
@@ -33,20 +33,20 @@ def draw_candle_stick(ax, data):
     plt.setp(ax.get_xticklabels(), visible=False)
     
     #slice data here and it will display more clear
-    ax.plot(ema5[-100:], label='MA5')
-    ax.plot(ema10[-100:], label='MA10', color="#FFFF08")
-    ax.plot(ema20[-100:], label='MA20', color="#FF80FF")
-    ax.plot(ema30[-100:], label='MA30', color="#00E600")   
-    ax.plot(ema60[-100:], label='MA60', color="#02E2F4")
-    ax.plot(ema120[-100:], label='MA120', color="#000000")    
+    ax.plot(ema5[-pnum:], label='MA5')
+    ax.plot(ema10[-pnum:], label='MA10', color="#FFFF08")
+    ax.plot(ema20[-pnum:], label='MA20', color="#FF80FF")
+    ax.plot(ema30[-pnum:], label='MA30', color="#00E600")   
+    ax.plot(ema60[-pnum:], label='MA60', color="#02E2F4")
+    ax.plot(ema120[-pnum:], label='MA120', color="#000000")    
     ax.legend(loc='upper left')
     
-    _data = data[-100:]
+    _data = data[-pnum:]
     mpf.candlestick2_ochl(ax, _data['open'], _data['close'], _data['high'], _data['low'],
                      width=0.5, colorup='r', colordown='green',
                      alpha=0.6)
 
-def draw_volumes(ax, data):
+def draw_volumes(ax, data, pnum=120):
     '''
     draw volumes
     '''
@@ -59,30 +59,30 @@ def draw_volumes(ax, data):
     plt.setp(ax.get_xticklabels(), visible=False)
     
     #slice data here and it will display more clear
-    ax.plot(ema5[-100:], label='MA5')
-    ax.plot(ema10[-100:], label='MA10', color="#FFFF08")
+    ax.plot(ema5[-pnum:], label='MA5')
+    ax.plot(ema10[-pnum:], label='MA10', color="#FFFF08")
     
-    _data = data[-100:]
+    _data = data[-pnum:]
     ax.bar(_data['date'], _data['volume'], width=0.3, color='red', label="Volume")
     
-def draw_macd(ax, data):
+def draw_macd(ax, data, pnum=120):
     '''
     Draw MACD plot
     '''
     diff, dea, _macd = macd(data['close'].values)
 
     #slice data here and it will display more clear
-    _data = data[-100:]
+    _data = data[-pnum:]
     
     #set X ticks and labels
     ax.set_xticks(range(0, len(_data['date']), 10))       
     ax.set_xticklabels(_data['date'][::10], rotation=45)
     
-    ax.plot(_data['date'], diff[-100:], label='DIFF')
-    ax.plot(_data['date'], dea[-100:], label='DEA')
+    ax.plot(_data['date'], diff[-pnum:], LineWidth=2, label='DIFF')
+    ax.plot(_data['date'], dea[-pnum:], LineWidth=2, label='DEA')
     ax.legend(loc='upper left')
     
-    ax.bar(_data['date'], _macd[-100:], width=0.3, color='red', label="MACD")
+    ax.bar(_data['date'], _macd[-pnum:], width=0.3, color='red', label="MACD")
 
 def draw_stock_with_multi_periods(code_id, periods, fname, index=False):
     '''
@@ -146,6 +146,43 @@ def draw_stock_with_multi_periods2(code_id, periods, fname, index=False):
         draw_volumes(ax_volume, data)
          
         ax_macd = fig.add_subplot(9, 2, indexs[i/2*3 + 2][i%2], sharex=ax_k)
+        draw_macd(ax_macd, data)        
+
+    plt.grid()
+    plt.savefig(fname)  
+    plt.close(fig)  
+    
+#     plt.show()
+
+    return True
+
+def draw_stock_with_candlestick_macd(code_id, periods, fname, index=False):
+    '''
+    Draw the pictures with candle sticks, vlumes and MACD
+    '''
+    if len(periods) == 0:
+        log.error("periods parameter doesn't have any valid values")
+        return False
+
+    fig = plt.figure(figsize=(150,80))
+    num = len(periods)
+    
+#     total_plots = num * 3
+    #create index
+    indexs = np.arange(1, 13).reshape(6, 2)
+    print indexs[0][0]
+
+    for i in xrange(num):
+        ktype = periods[i]
+        data = ts.get_k_data(code_id, ktype=ktype, index=index)    
+        ax_k = fig.add_subplot(6, 2, indexs[i/2*2][i%2])
+        ax_k.set_title(get_chart_title(ktype))
+        draw_candle_stick(ax_k, data)
+         
+#         ax_volume = fig.add_subplot(6, 2, indexs[i/2*3 + 1][i%2], sharex=ax_k)
+#         draw_volumes(ax_volume, data)
+         
+        ax_macd = fig.add_subplot(6, 2, indexs[i/2*2 + 1][i%2], sharex=ax_k)
         draw_macd(ax_macd, data)        
 
     plt.grid()

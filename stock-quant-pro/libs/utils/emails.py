@@ -11,9 +11,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import utils, encoders
+
+from drawing.drawing_utils import draw_stock_with_candlestick_macd
+from utils.log import log
+from datetime import datetime
+
 import mimetypes
 import smtplib
-
+import platform
+import os
 
 def get_attachment(filename):
     '''
@@ -79,6 +85,32 @@ def send_email(to_addr, subject, email_body, file_list=None):
     s = smtplib.SMTP(smtp_server)
 #     s.set_debuglevel(1)
     s.sendmail(from_addr, to_addr, msg.as_string())
+
+def send_alert_email(code_id, subject, body, k_type):
+    '''
+    Send email to alert
+    '''
+    log.info("send alert email: " + code_id + " " + subject)
+    file_lst = []
+    
+    if platform.system() == "Linux":
+        rdir = '/home/hadoop/quant/' + datetime.now().strftime("%Y-%m-%d-") + k_type
+    else:
+        rdir = 'd:\\quant\\' + datetime.now().strftime("%Y-%m-%d-") + k_type
+        
+    if not os.path.exists(rdir):
+        os.mkdir(rdir)
+    
+    if platform.system() == "Linux":
+        fhead = rdir + os.sep + code_id + "-"+ k_type + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
+    else:
+        fhead = rdir + os.sep + code_id + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
+    
+    fname = fhead + "-all-periods.png"
+    if draw_stock_with_candlestick_macd(code_id, ("W", "D", "60", "30", "15", "5"), fname):
+        file_lst.append(fname)
+    
+#     send_email("jliu@infinera.com", code_id + " " + subject, body)  
 
 if __name__ == '__main__':
     pass
