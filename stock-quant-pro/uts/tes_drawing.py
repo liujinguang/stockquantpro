@@ -21,7 +21,7 @@ if __name__ == '__main__':
         fname = "/home/hadoop/" + code_id + "-month-week" + ".png"
     else:
         fname = 'd:\\quant\\' + code_id + "-month-week" + ".png"
-    draw_stock_with_candlestick_macd(code_id, ("W", "D", "60", "30", "15", "5"), fname, index=False)
+    draw_stock_with_candlestick_macd(code_id, ("W", "D", "30", "15"), fname, index=False)
 #     draw_stock_with_multi_periods(code_id, ("15", "5"), fname, index=True)
 #     num = 6    
 #     a = np.arange(1, 3*num + 1).reshape(3*num/2, 2)
@@ -31,4 +31,7 @@ if __name__ == '__main__':
 
 #     diff, dea, bar = get_stock_macd(code_id, "30", db.is_index(code_id))
 #     print diff.values[-1]
+#     aa = np.arange(0, 10)
+#     print aa.size
+#     print aa[-8:]
     

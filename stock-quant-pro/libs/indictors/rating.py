@@ -21,8 +21,8 @@ def get_stock_rating(code_id):
     try:
         quotes = ts.get_realtime_quotes(code_id)
     except Exception, e:
-        log.info("Error occurs " + e)
-        exit(0)
+        log.info("Error occurs " + e.str())
+        return None
                 
     bid = float(quotes["bid"].values[0])
     log.info(code_id +" current bid " + str(bid))

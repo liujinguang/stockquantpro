@@ -82,7 +82,18 @@ def draw_macd(ax, data, pnum=120):
     ax.plot(_data['date'], dea[-pnum:], LineWidth=2, label='DEA')
     ax.legend(loc='upper left')
     
-    ax.bar(_data['date'], _macd[-pnum:], width=0.3, color='red', label="MACD")
+    _macd_tmp = _macd[-pnum:]
+    _macd_above_zero = np.zeros(pnum)
+    _macd_below_zero = np.zeros(pnum)
+    for i in xrange(pnum):
+        if _macd_tmp[i] > 0:
+            _macd_above_zero[i] = _macd_tmp[i]
+        else:
+            _macd_below_zero[i] = _macd_tmp[i]
+    
+#     ax.bar(_data['date'], _macd[-pnum:], width=0.3, color='red', label="MACD")
+    ax.bar(_data['date'], _macd_above_zero, width=0.3, color='red')
+    ax.bar(_data['date'], _macd_below_zero, width=0.3, color='green', label="MACD")
 
 def draw_stock_with_multi_periods(code_id, periods, fname, index=False):
     '''
@@ -160,29 +171,31 @@ def draw_stock_with_candlestick_macd(code_id, periods, fname, index=False):
     '''
     Draw the pictures with candle sticks, vlumes and MACD
     '''
-    if len(periods) == 0:
+    num = len(periods)
+    if (num == 0) or (num % 2 != 0):
         log.error("periods parameter doesn't have any valid values")
+        log.error("It accepts even numbers for periods parameter")
         return False
 
     fig = plt.figure(figsize=(80,40))
-    num = len(periods)
+#     num = len(periods)
     
 #     total_plots = num * 3
     #create index
-    indexs = np.arange(1, 13).reshape(6, 2)
+    indexs = np.arange(1, 2*num + 1).reshape(num, 2)
 #     print indexs[0][0]
 
     for i in xrange(num):
         ktype = periods[i]
         data = ts.get_k_data(code_id, ktype=ktype, index=index)    
-        ax_k = fig.add_subplot(6, 2, indexs[i/2*2][i%2])
+        ax_k = fig.add_subplot(num, 2, indexs[i/2*2][i%2])
         ax_k.set_title(get_chart_title(ktype))
         draw_candle_stick(ax_k, data)
          
 #         ax_volume = fig.add_subplot(6, 2, indexs[i/2*3 + 1][i%2], sharex=ax_k)
 #         draw_volumes(ax_volume, data)
          
-        ax_macd = fig.add_subplot(6, 2, indexs[i/2*2 + 1][i%2], sharex=ax_k)
+        ax_macd = fig.add_subplot(num, 2, indexs[i/2*2 + 1][i%2], sharex=ax_k)
         draw_macd(ax_macd, data)        
 
     plt.grid()
