@@ -164,13 +164,13 @@ def draw_stock_with_candlestick_macd(code_id, periods, fname, index=False):
         log.error("periods parameter doesn't have any valid values")
         return False
 
-    fig = plt.figure(figsize=(150,80))
+    fig = plt.figure(figsize=(80,40))
     num = len(periods)
     
 #     total_plots = num * 3
     #create index
     indexs = np.arange(1, 13).reshape(6, 2)
-    print indexs[0][0]
+#     print indexs[0][0]
 
     for i in xrange(num):
         ktype = periods[i]

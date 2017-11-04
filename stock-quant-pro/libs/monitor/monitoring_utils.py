@@ -20,7 +20,7 @@ def monitor_indictor_with_30F():
     '''
     stock_lst = db.get_stock_list()
     while True:
-        log.info("====New loop start====")
+        log.info("====New loop start 30F period====")
         for code_id in stock_lst:
             is_check_now = False
             email_subject = None

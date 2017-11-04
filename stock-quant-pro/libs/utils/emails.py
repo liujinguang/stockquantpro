@@ -94,9 +94,9 @@ def send_alert_email(code_id, subject, body, k_type):
     file_lst = []
     
     if platform.system() == "Linux":
-        rdir = '/home/hadoop/quant/' + datetime.now().strftime("%Y-%m-%d-") + k_type
+        rdir = '/home/hadoop/quant/' + datetime.now().strftime("%Y-%m-%d")
     else:
-        rdir = 'd:\\quant\\' + datetime.now().strftime("%Y-%m-%d-") + k_type
+        rdir = 'd:\\quant\\' + datetime.now().strftime("%Y-%m-%d")
         
     if not os.path.exists(rdir):
         os.mkdir(rdir)

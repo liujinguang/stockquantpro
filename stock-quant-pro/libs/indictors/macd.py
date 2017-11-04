@@ -57,7 +57,7 @@ def get_stock_macd(code_id, ktype, data=None, index=False):
     return macd(data['close'])
 
 
-def is_macd_golden_cross_now(code_id, ktype, data=None, index=False):
+def is_macd_golden_cross_now(code_id, ktype, data=None, index=False, zero=0):
     '''
     is the MACD in golden cross status
     '''
@@ -67,8 +67,9 @@ def is_macd_golden_cross_now(code_id, ktype, data=None, index=False):
                 
     diff, dea, bar = get_stock_macd(code_id, ktype, data=data, index=index)
     
-    #check the gold cross for this kind of period
-    if bar.values[-2] < 0 and bar.values[-1] >= 0 and db.is_alert_needed(code_id, ktype):
+    #check the gold cross for this kind of period, 60F is too long, so it alerts when it's neer to
+    #golden cross
+    if bar.values[-2] < 0 and bar.values[-1] > zero and db.is_alert_needed(code_id, ktype):
         db.update_alert_time(code_id, ktype)
         log.info("stock " + code_id + " has a MACD golden crosss for " + ktype + "F period ")
         return True

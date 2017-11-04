@@ -500,8 +500,14 @@ def is_alert_needed(code_id,ktype):
     '''
     if "15" in ktype:
         last_alert_time = stock_pool[code_id]["15F_alert_time"]
-    else:
+    elif "30" in ktype:
         last_alert_time = stock_pool[code_id]["30F_alert_time"]   
+    elif "60" in ktype:
+        last_alert_time = stock_pool[code_id]["60F_alert_time"]
+    else:
+        log.info("unknown ktype")
+        exit(0)
+
 
     if last_alert_time is None:
         return True
