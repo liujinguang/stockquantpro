@@ -30,3 +30,6 @@ if __name__ == '__main__':
     
 #     b =  a - datetime.now()
 #     print b.total_seconds()
+    print type(datetime.strptime("2017-11-04 11:20:33", "%Y-%m-%d %H:%M:%S"))
+    
+    print datetime.now().strftime("%Y-%m-%d %H:%M:%S")

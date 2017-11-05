@@ -8,9 +8,9 @@ Created on 2017年10月30日
 
 import pandas as pd
 import tushare as ts
-import database.db as db
-from utils.time_utils import get_start_date
+from utils.time_utils import is_alert_needed
 from utils.log import log
+from database import db_crud
 
 
 def _expma(period, m, exp_ma, prices):
@@ -28,13 +28,13 @@ def macd(prices, fast=12, slow=26, signal=9, m=2.0):
     
     26日EMA的计算：EMA26 = 前一日EMA26 X 25/27 + 今日收盘 X 2/27
     
-    差离值（DIF）的计算： DIF = EMA12 - EMA26，即为talib-MACD返回值macd
+        差离值（DIF）的计算： DIF = EMA12 - EMA26，即为talib-MACD返回值macd
     
-    根据差离值计算其9日的EMA，即离差平均值，是所求的DEA值。
-    今日DEA = （前一日DEA X 8/10 + 今日DIF X 2/10），即为talib-MACD返回值signal
+        根据差离值计算其9日的EMA，即离差平均值，是所求的DEA值。
+        今日DEA = （前一日DEA X 8/10 + 今日DIF X 2/10），即为talib-MACD返回值signal
     
     DIF与它自己的移动平均之间差距的大小一般BAR=（DIF-DEA)2，即为MACD柱状图。
-    但是talib中MACD的计算是bar = (dif-dea)1    
+        但是talib中MACD的计算是bar = (dif-dea)1    
     '''
     expma12_1 = pd.ewma(prices, span=fast)  
     expma26_1 = pd.ewma(prices, span=slow) 
@@ -57,26 +57,26 @@ def get_stock_macd(code_id, ktype, data=None, index=False):
     return macd(data['close'])
 
 
-def is_macd_golden_cross_now(code_id, ktype, data=None, index=False, zero=0):
+def is_macd_golden_cross_now(sotck_entity, ktype, data=None, index=False, zero=0):
     '''
     is the MACD in golden cross status
     '''
-    log.info("Start to check " + code_id + " " + ktype + "F MACD")
+    log.info("Start to check " + sotck_entity.codeId + " " + ktype + "F MACD")
     if data is None:
-        data = ts.get_k_data(code_id, ktype=ktype, index=index)
+        data = ts.get_k_data(sotck_entity.codeId, ktype=ktype, index=index)
                 
-    diff, dea, bar = get_stock_macd(code_id, ktype, data=data, index=index)
+    diff, dea, bar = get_stock_macd(sotck_entity.codeId, ktype, data=data, index=index)
     
     #check the gold cross for this kind of period, 60F is too long, so it alerts when it's neer to
     #golden cross
-    if bar.values[-2] < 0 and bar.values[-1] > zero and db.is_alert_needed(code_id, ktype):
-        db.update_alert_time(code_id, ktype)
-        log.info("stock " + code_id + " has a MACD golden crosss for " + ktype + "F period ")
+    if bar.values[-2] < 0 and bar.values[-1] > zero and is_alert_needed(sotck_entity, ktype):
+        db_crud.update_alert_time(sotck_entity, ktype)
+        log.info("stock " + sotck_entity.codeId + " has a MACD golden crosss for " + ktype + "F period ")
         return True
     
     #60F DIFF crosses the 0 axis
     if ktype == "60" and diff.values[-2] < 0 and diff.values[-1] >=0: 
-        log.info("stock " + code_id + "a MACD crossing zero axis " + ktype + "F period ")
+        log.info("stock " + sotck_entity.codeId + "a MACD crossing zero axis " + ktype + "F period ")
         return True        
     
     return False

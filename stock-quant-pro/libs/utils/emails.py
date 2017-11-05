@@ -86,10 +86,11 @@ def send_email(to_addr, subject, email_body, file_list=None):
 #     s.set_debuglevel(1)
     s.sendmail(from_addr, to_addr, msg.as_string())
 
-def send_alert_email(code_id, subject, body, k_type):
+def send_alert_email(entity, subject, body, k_type):
     '''
     Send email to alert
     '''
+    code_id = entity.codeId
     log.info("send alert email: " + code_id + " " + subject)
     file_lst = []
     
@@ -101,13 +102,16 @@ def send_alert_email(code_id, subject, body, k_type):
     if not os.path.exists(rdir):
         os.mkdir(rdir)
     
-    if platform.system() == "Linux":
-        fhead = rdir + os.sep + code_id + "-"+ k_type + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
-    else:
-        fhead = rdir + os.sep + code_id + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
+    fname = rdir + os.sep + k_type + "-" + code_id + "-" + \
+            entity.name.decode('utf-8').encode('gbk') + "-" + \
+            datetime.now().strftime("%Y-%m-%d-%H-%M-") + ".png"
+#     if platform.system() == "Linux":
+#         fhead = rdir + os.sep + k_type + "-" + code_id + "-" + entity.name.decode('utf-8').encode('gbk') + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
+#     else:
+#         fhead = rdir + os.sep + code_id + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
     
-    fname = fhead + "-all-periods.png"
-    if draw_stock_with_candlestick_macd(code_id, ("W", "D", "60", "30", "15", "5"), fname):
+#     fname = fhead + "-all-periods.png"
+    if draw_stock_with_candlestick_macd(code_id, ("W", "D", "30", "15"), fname):
         file_lst.append(fname)
     
 #     send_email("jliu@infinera.com", code_id + " " + subject, body)  

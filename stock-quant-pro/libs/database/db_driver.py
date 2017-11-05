@@ -56,8 +56,12 @@ class SqliteDb(BaseDb):
     
     def get_conn(self):
         from sqlobject.sqlite import builder
+
+        if platform.system() == "Linux":
+            return builder()("/var/quant/quant.db")
+        else:
+            return builder()('d:\\quant\\quant.db')
         
-        return builder()("/var/quant/quant.db")
 
 if __name__ == '__main__':
     pass
