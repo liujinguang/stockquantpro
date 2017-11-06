@@ -11,6 +11,7 @@ import tushare as ts
 from utils.time_utils import is_alert_needed
 from utils.log import log
 from database import db_crud
+from utils.constants import GOLDEN_CROSS, DEAD_CROSS
 
 
 def _expma(period, m, exp_ma, prices):
@@ -57,21 +58,43 @@ def get_stock_macd(code_id, ktype, data=None, index=False):
     return macd(data['close'])
 
 
-def is_macd_golden_cross_now(sotck_entity, ktype, data=None, index=False, zero=0):
+def is_macd_golden_cross_now(stock_entity, ktype, data=None, index=False):
     '''
     is the MACD in golden cross status
     '''
-    log.info("Start to check " + sotck_entity.codeId + " " + ktype + "F MACD")
+    log.info("Start to check " + stock_entity.codeId + " " + ktype + 
+             "F MACD golden cross")
     if data is None:
-        data = ts.get_k_data(sotck_entity.codeId, ktype=ktype, index=index)
+        data = ts.get_k_data(stock_entity.codeId, ktype=ktype, index=index)
     
-    diff, dea, bar = get_stock_macd(sotck_entity.codeId, ktype, data=data, index=index)
+    diff, dea, bar = get_stock_macd(stock_entity.codeId, ktype, data=data, index=index)
 
     #check the gold cross for this kind of period, 60F is too long, so it alerts when it's neer to
     #golden cross
-    if bar.values[-2] < 0 and bar.values[-1] > zero and is_alert_needed(sotck_entity, ktype):
-        db_crud.update_alert_time(sotck_entity, ktype)
-        log.info("stock " + sotck_entity.codeId + " has a MACD golden crosss for " + ktype + "F period ")
+    if bar.values[-2] < 0 and bar.values[-1] >= 0 and is_alert_needed(stock_entity, ktype, GOLDEN_CROSS):
+        db_crud.update_alert_time(stock_entity, ktype, GOLDEN_CROSS)
+        log.info("stock " + stock_entity.codeId + " has a MACD golden cross for " + 
+                 ktype + "F period ")
+        return True
+  
+    return False
+
+def is_macd_dead_cross_now(stock_entity, ktype, data=None, index=False):
+    '''
+    is the MACD in golden cross status
+    '''
+    log.info("Start to check " + stock_entity.codeId + " " + ktype + 
+             "F MACD dead cross")
+    if data is None:
+        data = ts.get_k_data(stock_entity.codeId, ktype=ktype, index=index)
+    
+    diff, dea, bar = get_stock_macd(stock_entity.codeId, ktype, data=data, index=index)
+
+    #check the gold cross for this kind of period, 60F is too long, so it alerts when it's neer to
+    #golden cross
+    if bar.values[-2] > 0 and bar.values[-1] <= 0 and is_alert_needed(stock_entity, ktype, DEAD_CROSS):
+        db_crud.update_alert_time(stock_entity, ktype, DEAD_CROSS)
+        log.info("stock " + stock_entity.codeId + " has a MACD dead cross for " + ktype + "F period ")
         return True
   
     return False

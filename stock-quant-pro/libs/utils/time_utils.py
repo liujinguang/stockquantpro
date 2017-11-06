@@ -9,6 +9,7 @@ Created on Oct 31, 2017
 
 from datetime import datetime 
 from utils.log import log
+from utils.constants import GOLDEN_CROSS, DEAD_CROSS
 
 def get_alert_interval(ktype):
     '''
@@ -33,16 +34,30 @@ def get_alert_interval(ktype):
            
     return interval
 
-def is_alert_needed(stock_entity,ktype):
+def is_alert_needed(stock_entity, ktype, cross_type):
     '''
     we need to check if the alert email is sent recently
     '''
-    if "15" in ktype:
-        last_alert_time = stock_entity.lastAlert15f
+    if "60" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            last_alert_time = stock_entity.lastGoldenCrossAlert60f
+        else:
+            last_alert_time = stock_entity.lastDeadCrossAlert60f
     elif "30" in ktype:
-        last_alert_time = stock_entity.lastAlert30f
-    elif "60" in ktype:
-        last_alert_time = stock_entity.lastAlert60f
+        if cross_type == GOLDEN_CROSS:
+            last_alert_time = stock_entity.lastGoldenCrossAlert30f
+        else:
+            last_alert_time = stock_entity.lastDeadCrossAlert30f        
+    elif "15" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            last_alert_time = stock_entity.lastGoldenCrossAlert15f
+        else:
+            last_alert_time = stock_entity.lastDeadCrossAlert15f   
+    elif "5" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            last_alert_time = stock_entity.lastGoldenCrossAlert05f
+        else:
+            last_alert_time = stock_entity.lastDeadCrossAlert05f                     
     else:
         log.info("unknown ktype")
         exit(0)
@@ -60,11 +75,13 @@ def is_exchanging_time_now():
     '''
     '''
     td = datetime.now()
+    print td
     exchanging_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
     if not td.strftime("%A") in exchanging_days:
         log.info("It's not exchanging day today")
         return False
         
+    
     if (td.hour == 9 and td.minute >= 25)\
          or (td.hour == 10) \
          or (td.hour == 11 and td.minute <= 30) \

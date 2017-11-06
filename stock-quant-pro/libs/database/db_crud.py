@@ -9,6 +9,7 @@ Created on Nov 3, 2017
 from database.db_table import StockPoolTbl, StockTbl
 from utils.log import log
 from datetime import datetime
+from utils.constants import GOLDEN_CROSS
 
 
 def is_id_in_pool(stock_id):
@@ -96,7 +97,12 @@ def get_stock_in_pool(stock_id=None, rating=None):
             return list(StockPoolTbl.select())
         else:
             return list(StockPoolTbl.selectBy(rating=rating))
-    
+
+def get_stocks_by_monitor_flag():
+    '''
+    '''    
+    return list(StockPoolTbl.selectBy(isMonitored=True))
+
 def get_stock_in_market(stock_id=None):
     '''
     '''
@@ -109,17 +115,32 @@ def get_stock_in_market(stock_id=None):
     else:
         return list(StockTbl.select())
 
-def update_alert_time(stock_entity,ktype):
+def update_alert_time(stock_entity,ktype,cross_type):
     '''
     update alert time
     '''
     log.info("update alert time for " + stock_entity.codeId + " " + ktype)
-    if "15" in ktype:
-        stock_entity.lastAlert15f = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if "60" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            stock_entity.lastGoldenCrossAlert60f = time_now
+        else:
+            stock_entity.lastDeadCrossAlert60f = time_now
     elif "30" in ktype:
-        stock_entity.lastAlert30f = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    elif "60" in ktype:
-        stock_entity.lastAlert60f = datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+        if cross_type == GOLDEN_CROSS:
+            stock_entity.lastGoldenCrossAlert30f = time_now
+        else:
+            stock_entity.lastDeadCrossAlert30f = time_now        
+    elif "15" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            stock_entity.lastGoldenCrossAlert15f = time_now
+        else:
+            stock_entity.lastDeadCrossAlert15f = time_now           
+    elif "5" in ktype:
+        if cross_type == GOLDEN_CROSS:
+            stock_entity.lastGoldenCrossAlert05f = time_now
+        else:
+            stock_entity.lastDeadCrossAlert05f = time_now           
     else:
         log.info("Unknown ktype for " + stock_entity.codeId + " " + ktype)       
 
