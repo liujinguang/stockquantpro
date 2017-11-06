@@ -222,6 +222,7 @@ def draw_stock_with_candlestick_macd(code_id, periods, fname, index=False):
         ax_macd = fig.add_subplot(num, 2, indexs[i / 2 * 2 + 1][i % 2], sharex=ax_k)
         draw_macd(ax_macd, data, pnum)        
 
+    print fname
     plt.grid()
     plt.savefig(fname)  
     plt.close(fig)  

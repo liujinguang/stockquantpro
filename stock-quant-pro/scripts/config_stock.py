@@ -37,10 +37,19 @@ if __name__ == '__main__':
                              default="ALL", 
                              help="Rating information, default is ALL")
     list_group.add_argument("-t", "--type", 
-                             choices=["pool", "market"], 
-                             default="pool",
-                             help="Resource type, default is pool")
+                             choices=["basic", "alert"], 
+                             default="basic",
+                             help="Information displayed type, basic: basic configuration information" + \
+                                  "alert: history alert recordinformation")
     list_group.add_argument("-i", "--id", help="Stock ID")
+    list_group.add_argument("-o", "--is-observed", 
+                            choices=["yes", "no", "notcare"], 
+                            default="notcare",
+                            help="Check if the stock is observed or not")
+    list_group.add_argument("-m", "--is-monitored", 
+                            choices=["yes", "no", "notcare"], 
+                            default="notcare",
+                            help="Check if the stock is monitored or not")                            
     
     drawing_parser = subparsers.add_parser("draw", 
                                            help="Draw stock charts for stocks in pool")
@@ -77,7 +86,29 @@ if __name__ == '__main__':
     stock_parser.add_argument("-n", "--name")
     stock_parser.add_argument("--index", choices=["True", "False"], default="False")
     stock_parser.add_argument("-c", "--check-in", choices=["True", "False"], default="False")
+
+    #add stock management
+    alert_parser = subparsers.add_parser("alert", help="Manage stock alert options in the database")
+    alert_group = alert_parser.add_mutually_exclusive_group(required=True)
+    alert_group.add_argument("-r", "--reset", nargs="?", 
+                             help="Reset all alert options of the stock ID")
     
+    alert_group.add_argument("-s", "--set", nargs="?", 
+                             help="Set alert option of the stock ID")
+    alert_parser.add_argument("-p","--policy", 
+                              choices=["ma", "macd"], 
+                              default="ma",
+                              help="Policy used, default ma")
+    alert_parser.add_argument("-c", "--cross", 
+                              choices=["golden", "dead"], 
+                              default="golden",
+                              help="Cross type, default golden cross")
+    alert_parser.add_argument("--period", 
+                              choices=["05f", "15f", "30f", "60f"], 
+                              default="30f",
+                              help="Period monitored, default 30f")    
+    
+    #rating stock options
     rating_parser = subparsers.add_parser("rating", help="Evaluate the rating of each stock")
     rating_parser.add_argument("-t", "--type", choices=["pool", "market"], default="pool", 
                                help="Choose sources: pool or markets, default pool")    
@@ -115,47 +146,89 @@ if __name__ == '__main__':
                 StockPoolTbl(codeId=entity.codeId, isDeletable=True, name=entity.name, rating="A")
                 
     elif args.subparsers_name == "list":
-        if args.type == "pool":
-            log.info("%-10s%-12s%-7s%-7s%-10s%-6s%-22s%-22s%-22s", 
-                     "股票编码".decode('utf-8').encode('gbk'), 
-                     "股票名称".decode('utf-8').encode('gbk'), 
-                     "买入?".decode('utf-8').encode('gbk'), 
-                     "指数?".decode('utf-8').encode('gbk'), 
-                     "可删除?".decode('utf-8').encode('gbk'), 
-                     "评级".decode('utf-8').encode('gbk'), 
-                     "15F告警时间".decode('utf-8').encode('gbk'), 
-                     "30F告警时间".decode('utf-8').encode('gbk'), 
-                     "60F告警时间".decode('utf-8').encode('gbk') )
+        if args.type == "basic":
+            log.info("%-14s%-14s%-8s%-14s%-14s%-8s%-8s%-8s%-8s%-8s%-8s%-8s%-8s%-8s%-8s", 
+                     "股票编码", 
+                     "股票名称", 
+                     "指数", 
+                     "进入观察", 
+    				 "进入监控", 
+                     "评级", 
+    				 "策略", 
+                     "M05FGC", 
+    				 "M15FGC", 
+    				 "M30FGC", 
+    				 "M60FGC", 
+                     "M05FDC", 
+    				 "M15FDC", 
+    				 "M30FDC", 
+    				 "M60FDC")
             
             if args.id is not None:
                 entity = db_crud.get_stock_in_pool(stock_id=args.id)
                 if entity is not None:
-                    log.info("%-10s%-12s%-7s%-7s%-10s%-6s%-22s%-22s%-22s", 
+                    log.info("%-10s%-14s%-6s%-10s%-10s%-6s%-6s%-8s%-8s%-8s%-8s%-8s%-8s%-8s%-8s", 
                              entity.codeId,
-                             entity.name.decode('utf-8').encode('gbk'),
-                             "Yes" if entity.isCheckedIn else "No",
+                             entity.name,
                              "Yes" if entity.isIndex  else "No",
-                             "Yes" if entity.isDeletable  else "No",
+                             "Yes" if entity.isObserved  else "No",
+                             "Yes" if entity.isMonitored  else "No",
                              entity.rating, 
-                             entity.lastAlert15f,
-                             entity.lastAlert30f,
-                             entity.lastAlert60f)   
+                             entity.policy,
+                             "Yes" if entity.isGoldenCrossAlert05f  else "No",
+                             "Yes" if entity.isGoldenCrossAlert15f  else "No",
+                             "Yes" if entity.isGoldenCrossAlert30f  else "No",
+                             "Yes" if entity.isGoldenCrossAlert60f  else "No",
+                             "Yes" if entity.isDeadCrossAlert05f  else "No",
+                             "Yes" if entity.isDeadCrossAlert15f  else "No",
+                             "Yes" if entity.isDeadCrossAlert30f  else "No",
+                             "Yes" if entity.isDeadCrossAlert60f  else "No"
+                             )
             else:
                 count = 0
                 stock_entities = db_crud.get_stock_in_pool()
-                for entity in stock_entities:
+                for entity in stock_entities:                    
                     if args.rating == "ALL" or entity.rating == args.rating:
+                        
+                        #check the monitor flag
+                        if args.is_monitored != "notcare":
+                            if args.is_monitored == "yes":
+                                is_monitored = True
+                            else:
+                                is_monitored = False
+                                
+                            if is_monitored != entity.isMonitored:
+                                continue
+                            
+                        #check the observation flag
+                        if args.is_observed != "notcare":
+                            if args.is_observed == "yes":
+                                is_observed = True
+                            else:
+                                is_observed = False
+                                
+                            if is_observed != entity.isObserved:
+                                continue
+                        
                         count += 1
-                        log.info("%-10s%-12s%-7s%-7s%-10s%-6s%-22s%-22s%-22s", 
+                        
+                        log.info("%-10s%-14s%-6s%-10s%-10s%-6s%-6s%-8s%-8s%-8s%-8s%-8s%-8s%-8s%-8s", 
                                  entity.codeId,
-                                 entity.name.decode('utf-8').encode('gbk'),
-                                 "Yes" if entity.isCheckedIn else "No",
+                                 entity.name,
                                  "Yes" if entity.isIndex  else "No",
-                                 "Yes" if entity.isDeletable  else "No",
+                                 "Yes" if entity.isObserved  else "No",
+                                 "Yes" if entity.isMonitored  else "No",
                                  entity.rating, 
-                                 entity.lastAlert15f,
-                                 entity.lastAlert30f,
-                                 entity.lastAlert60f)    
+                                 entity.policy,
+                                 "Yes" if entity.isGoldenCrossAlert05f  else "No",
+                                 "Yes" if entity.isGoldenCrossAlert15f  else "No",
+                                 "Yes" if entity.isGoldenCrossAlert30f  else "No",
+                                 "Yes" if entity.isGoldenCrossAlert60f  else "No",
+                                 "Yes" if entity.isDeadCrossAlert05f  else "No",
+                                 "Yes" if entity.isDeadCrossAlert15f  else "No",
+                                 "Yes" if entity.isDeadCrossAlert30f  else "No",
+                                 "Yes" if entity.isDeadCrossAlert60f  else "No"
+                                 )   
                 log.info("=" * 120) 
                 log.info("Total stocks: %d", count)                             
 
@@ -201,7 +274,7 @@ if __name__ == '__main__':
                     exit(0)
                      
             fname = rdir + stock_id + "-" + \
-                    stock_entity.name.decode('utf-8').encode('gbk') + ".png"
+                    stock_entity.name + ".png"
             draw_stock_with_candlestick_macd(stock_id, periods, fname, 
                                              index=stock_entity.isIndex)
             log.info("!!!Done!!!")
@@ -235,7 +308,41 @@ if __name__ == '__main__':
                     log.info("Done!")
                     
             log.info("!!!Done!!!")
-            log.info("Please check the directory " + rdir)            
+            log.info("Please check the directory " + rdir)   
+    elif args.subparsers_name == "alert":
+        if args.reset is not None:
+            db_crud.reset_alert_config(args.reset)
+        else:
+            stock_entity = db_crud.get_stock_in_pool(args.set)
+            if stock_entity is None:
+                log.info("Stock " + args.set + " doesn't exist!")
+                exit(1)
+                
+            stock_entity.isMonitored = True
+            if args.cross == "golden":
+                if args.period == "05f":
+                    stock_entity.isGoldenCrossAlert05f = True
+                elif args.period == "15f":
+                    stock_entity.isGoldenCrossAlert15f = True
+                elif args.period == "30f":
+                    stock_entity.isGoldenCrossAlert30f = True
+                elif args.period == "60f":
+                    stock_entity.isGoldenCrossAlert60f = True
+                else:
+                    log.error("Unknown period " + args.period)
+            elif args.cross == "dead":              
+                if args.period == "05f":
+                    stock_entity.isDeadCrossAlert05f = True
+                elif args.period == "15f":
+                    stock_entity.isDeadCrossAlert15f = True
+                elif args.period == "30f":
+                    stock_entity.isDeadCrossAlert30f = True
+                elif args.period == "60f":
+                    stock_entity.isDeadCrossAlert60f = True
+                else:
+                    log.error("Unknown period " + args.period)
+                    
+            stock_entity.policy = args.policy                                        
     else:
         parser.print_help()    
         print args               

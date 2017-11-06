@@ -64,22 +64,17 @@ def is_macd_golden_cross_now(sotck_entity, ktype, data=None, index=False, zero=0
     log.info("Start to check " + sotck_entity.codeId + " " + ktype + "F MACD")
     if data is None:
         data = ts.get_k_data(sotck_entity.codeId, ktype=ktype, index=index)
-                
-    diff, dea, bar = get_stock_macd(sotck_entity.codeId, ktype, data=data, index=index)
     
+    diff, dea, bar = get_stock_macd(sotck_entity.codeId, ktype, data=data, index=index)
+
     #check the gold cross for this kind of period, 60F is too long, so it alerts when it's neer to
     #golden cross
     if bar.values[-2] < 0 and bar.values[-1] > zero and is_alert_needed(sotck_entity, ktype):
         db_crud.update_alert_time(sotck_entity, ktype)
         log.info("stock " + sotck_entity.codeId + " has a MACD golden crosss for " + ktype + "F period ")
         return True
-    
-    #60F DIFF crosses the 0 axis
-    if ktype == "60" and diff.values[-2] < 0 and diff.values[-1] >=0: 
-        log.info("stock " + sotck_entity.codeId + "a MACD crossing zero axis " + ktype + "F period ")
-        return True        
-    
+  
     return False
-    
+
 if __name__ == '__main__':
     pass

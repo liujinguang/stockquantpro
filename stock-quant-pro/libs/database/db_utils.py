@@ -3799,23 +3799,23 @@ def init_database():
     '''
     Initialize database and import data into tabls
     '''
-#     StockPoolTbl.dropTable(ifExists=True)
-#     StockPoolTbl.createTable(ifNotExists=True)
-#     if StockPoolTbl.select().count() == 0:
-#         for k in stock_pool_dict.keys():
-#             StockPoolTbl(codeId=k, name=stock_pool_dict[k]['name'])
-# 
-#         #add Shanghai and Shenzhen indexs
-#         StockPoolTbl(codeId="000001", name="上证指数", isIndex=True, rating="A")
-#         StockPoolTbl(codeId="399001", name="深证成指", isIndex=True, rating="A")
+    StockPoolTbl.dropTable(ifExists=True)
+    StockPoolTbl.createTable(ifNotExists=True)
+    for k in stock_dict.keys():
+        StockPoolTbl(codeId=k, name=stock_dict[k])
+    
+    #add Shanghai and Shenzhen indexs
+    StockPoolTbl(codeId="000001", name="上证指数", isIndex=True, rating="A")
+    StockPoolTbl(codeId="399001", name="深证成指", isIndex=True, rating="A")
         
 #     stock_pool_lst = list(stock_pool_dict.keys())
-    StockTbl.dropTable(ifExists=True)
-    StockTbl.createTable(ifNotExists=True)
-    if StockTbl.select().count() == 0:
-        for k in stock_dict.keys():
+#     StockTbl.dropTable(ifExists=True)
+#     StockTbl.createTable(ifNotExists=True)
+#     if StockTbl.select().count() == 0:
+#         for k in stock_dict.keys():
 #             if not k in stock_pool_lst:  #excludes the stocks in pool
 #                 StockTbl(codeId=k, name=stock_dict[k])
-            StockTbl(codeId=k, name=stock_dict[k])
+#             StockTbl(codeId=k, name=stock_dict[k])
+            
 if __name__ == '__main__':
     pass
