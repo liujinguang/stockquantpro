@@ -114,7 +114,8 @@ def send_alert_email(entity, subject, body, k_type):
     if draw_stock_with_candlestick_macd(code_id, ("W", "D", "30", "15"), fname):
         file_lst.append(fname)
     
-#     send_email("jliu@infinera.com", code_id + " " + subject, body)  
+    if platform.system() == "Linux":
+        send_email("jliu@infinera.com", code_id + " " + subject, body)  
 
 if __name__ == '__main__':
     pass

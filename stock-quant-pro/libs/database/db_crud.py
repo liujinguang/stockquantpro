@@ -81,6 +81,23 @@ def reset_alert_config(stock_id=None):
                 stock_entity.isDeadCrossAlert30f = False
                 stock_entity.isDeadCrossAlert60f = False                
         
+def reset_observed_config(stock_id=None):
+    '''
+    reset alert configuration of the stock
+    '''
+    if stock_id is not None:
+        stock_entity = get_stock_in_pool(stock_id)
+        if stock_entity is None:
+            log.info("Stock " + stock_id + " doesn't exist!")
+            
+            return
+        
+        stock_entity.isObserved = False
+    else:
+        stock_entities = get_stock_in_pool()
+        
+        for stock_entity in stock_entities:
+            stock_entity.isObserved = False
     
 def get_stock_in_pool(stock_id=None, rating=None):
     '''

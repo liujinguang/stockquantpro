@@ -119,12 +119,17 @@ def start_monitor_stocks():
     
     while True:
         if not is_exchanging_time_now():
-            log.info("It's not exchanging time now. Sleep 300 seconds")
+            log.info("It's not exchanging time now. Sleep 60 seconds")
             sleep(60)
             continue
         
         #the stock list may change, so we get it every time
         stock_entities = db_crud.get_stocks_by_monitor_flag()
+        if len(stock_entities) == 0:
+            log.info("No stock needs to be monitored, sleep 60 secs")
+            sleep(60)
+            continue
+        
         log.info("====New loop start to monitor====")
         for entity in stock_entities:          
             log.info("Start to check stock " + entity.codeId + "(" + entity.name + ")")

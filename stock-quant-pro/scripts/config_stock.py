@@ -318,7 +318,6 @@ if __name__ == '__main__':
                 log.info("Stock " + args.set + " doesn't exist!")
                 exit(1)
             
-            print args
             stock_entity.isMonitored = True
             if args.cross == "golden":
                 if args.period == "05f":

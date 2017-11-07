@@ -104,7 +104,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.subparsers_name == "reset":
-        db_crud.reset_alert_config()
+        db_crud.reset_observed_config()
     elif args.subparsers_name == "select":
         stock_entities = db_crud.get_stock_in_pool()
         for entity in stock_entities:
