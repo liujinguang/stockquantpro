@@ -132,7 +132,7 @@ def start_monitor_stocks():
         
         log.info("====New loop start to monitor====")
         for entity in stock_entities:          
-            log.info("Start to check stock " + entity.codeId + "(" + entity.name + ")")
+            log.info("========Check stock " + entity.codeId + "(" + entity.name + ")========")
             try:
                 quotes = ts.get_realtime_quotes(entity.codeId)
             except Exception:
@@ -143,6 +143,7 @@ def start_monitor_stocks():
             
             is_check_now = False  
             if entity.isGoldenCrossAlert05f or entity.isDeadCrossAlert05f:
+                log.info("Check 5F period cross type")
                 ktype = "5"
                 data_05F = ts.get_k_data(entity.codeId, ktype=ktype)
                  
@@ -165,6 +166,7 @@ def start_monitor_stocks():
                     
             is_check_now = False  
             if entity.isGoldenCrossAlert15f or entity.isDeadCrossAlert15f:
+                log.info("Check 15F period cross type")
                 ktype = "15"
                 data_15F = ts.get_k_data(entity.codeId, ktype=ktype)
                  
@@ -186,6 +188,7 @@ def start_monitor_stocks():
 
             is_check_now = False  
             if entity.isGoldenCrossAlert30f or entity.isDeadCrossAlert30f:
+                log.info("Check 30F period cross type")
                 ktype = "30"
                 data_30F = ts.get_k_data(entity.codeId, ktype=ktype)
                 
@@ -208,6 +211,7 @@ def start_monitor_stocks():
                                                                                              
             is_check_now = False  
             if entity.isGoldenCrossAlert60f or entity.isDeadCrossAlert60f:
+                log.info("Check 60F period cross type")
                 ktype = "60"
                 data_60F = ts.get_k_data(entity.codeId, ktype=ktype)
                 

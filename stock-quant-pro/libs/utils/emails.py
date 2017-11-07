@@ -105,12 +105,7 @@ def send_alert_email(entity, subject, body, k_type):
     fname = rdir + os.sep + k_type + "-" + code_id + "-" + \
             entity.name.decode('utf-8').encode('gbk') + "-" + \
             datetime.now().strftime("%Y-%m-%d-%H-%M-") + ".png"
-#     if platform.system() == "Linux":
-#         fhead = rdir + os.sep + k_type + "-" + code_id + "-" + entity.name.decode('utf-8').encode('gbk') + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
-#     else:
-#         fhead = rdir + os.sep + code_id + "-" + datetime.now().strftime("%Y-%m-%d-%H-%M-")
-    
-#     fname = fhead + "-all-periods.png"
+
     if draw_stock_with_candlestick_macd(code_id, ("W", "D", "30", "15"), fname):
         file_lst.append(fname)
     

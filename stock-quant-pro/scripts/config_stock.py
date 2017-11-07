@@ -95,6 +95,8 @@ if __name__ == '__main__':
     
     alert_group.add_argument("-s", "--set", nargs="?", 
                              help="Set alert option of the stock ID")
+    alert_group.add_argument("--history", nargs="*", 
+                             help="Display history alert data")    
     alert_parser.add_argument("-p","--policy", 
                               choices=["ma", "macd"], 
                               default="ma",
@@ -312,7 +314,7 @@ if __name__ == '__main__':
     elif args.subparsers_name == "alert":
         if args.reset is not None:
             db_crud.reset_alert_config(args.reset)
-        else:
+        elif args.set is not None:
             stock_entity = db_crud.get_stock_in_pool(args.set)
             if stock_entity is None:
                 log.info("Stock " + args.set + " doesn't exist!")
@@ -342,7 +344,33 @@ if __name__ == '__main__':
                 else:
                     log.error("Unknown period " + args.period)
                     
-            stock_entity.policy = args.policy                                        
+            stock_entity.policy = args.policy   
+        elif args.history is not None:
+            log.info("%-14s%-14s%-22s%-22s%-22s%-22s%-22s%-22s%-22s%-22s", 
+                     "股票编码", 
+                     "股票名称", 
+                     "Last-M05FGC", 
+                     "Last-M15FGC", 
+                     "Last-M30FGC", 
+                     "Last-M60FGC", 
+                     "Last-M05FDC", 
+                     "Last-M15FDC", 
+                     "Last-M30FDC", 
+                     "Last-M60FDC")
+            stock_entities = db_crud.get_stocks_by_monitor_flag()
+            for entity in stock_entities:
+                log.info("%-10s%-14s%-22s%-22s%-22s%-22s%-22s%-22s%-22s%-22s", 
+                     entity.codeId, 
+                     entity.name, 
+                     entity.lastGoldenCrossAlert05f if entity.lastGoldenCrossAlert05f else "--", 
+                     entity.lastGoldenCrossAlert05f if entity.lastGoldenCrossAlert05f else "--",
+                     entity.lastGoldenCrossAlert05f if entity.lastGoldenCrossAlert05f else "--",
+                     entity.lastGoldenCrossAlert05f if entity.lastGoldenCrossAlert05f else "--",
+                     entity.lastDeadCrossAlert05f if entity.lastDeadCrossAlert05f else "--",
+                     entity.lastDeadCrossAlert05f if entity.lastDeadCrossAlert05f else "--",
+                     entity.lastDeadCrossAlert05f if entity.lastDeadCrossAlert05f else "--",
+                     entity.lastDeadCrossAlert05f if entity.lastDeadCrossAlert05f else "--"
+                     )                
     else:
         parser.print_help()    
         print args               
