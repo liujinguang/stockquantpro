@@ -143,7 +143,6 @@ def start_monitor_stocks():
             
             is_check_now = False  
             if entity.isGoldenCrossAlert05f or entity.isDeadCrossAlert05f:
-                log.info("Check 5F period cross type")
                 ktype = "5"
                 data_05F = ts.get_k_data(entity.codeId, ktype=ktype)
                  
@@ -166,7 +165,6 @@ def start_monitor_stocks():
                     
             is_check_now = False  
             if entity.isGoldenCrossAlert15f or entity.isDeadCrossAlert15f:
-                log.info("Check 15F period cross type")
                 ktype = "15"
                 data_15F = ts.get_k_data(entity.codeId, ktype=ktype)
                  
@@ -211,7 +209,6 @@ def start_monitor_stocks():
                                                                                              
             is_check_now = False  
             if entity.isGoldenCrossAlert60f or entity.isDeadCrossAlert60f:
-                log.info("Check 60F period cross type")
                 ktype = "60"
                 data_60F = ts.get_k_data(entity.codeId, ktype=ktype)
                 
