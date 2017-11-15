@@ -21,8 +21,6 @@ from indictors.macd import get_stock_macd
 from utils.utilities import get_charts_root_directory
 from drawing.drawing_utils import draw_stock_with_candlestick_macd
 
-
-
 def is_stock_neer_golen_cross(stock_id):
     '''
     '''
@@ -69,16 +67,17 @@ def is_macd_golen_cross_now_for_selection(stock_id, ktype):
         return False
     
     bid = float(quotes["bid"].values[0])
-    log.info(stock_id +" current bid " + str(bid))
+    log.info("Current bid price is " + str(bid))
     
-    #Check 30F here
-    data_d = ts.get_k_data(stock_id, ktype=ktype)
+    #get k data
+    data = ts.get_k_data(stock_id, ktype=ktype)
     
     #if checks the day K, it must be above the ema120
-    if ktype == "D" and not is_prices_above_ema120(bid, data_d):
+    if ktype == "D" and not is_prices_above_ema120(bid, data):
+        log.info("Bid prices is below the ema120")
         return False
     
-    diff, dea, bar = get_stock_macd(stock_id, ktype, data=data_d)
+    diff, dea, bar = get_stock_macd(stock_id, ktype, data=data)
     if bar.values[-1] >= 0 and bar.values[-2] < 0:
         return True
     else:
@@ -107,15 +106,16 @@ if __name__ == '__main__':
         db_crud.reset_observed_config()
     elif args.subparsers_name == "select":
         stock_entities = db_crud.get_stock_in_pool()
+#         entity = db_crud.get_stock_in_pool(stock_id="600336")
         for entity in stock_entities:
             if args.policy == "macd":
                 log.info("Start to check stock " + entity.codeId)
                 if is_macd_golen_cross_now_for_selection(entity.codeId, ktype=args.period):
-                    log.info("MACD golden cross")
+                    log.info("!!!MACD golden cross!!!")
                     entity.isObserved = True
-                    
+                     
                 log.info("Done!")
-                
+                 
                 time.sleep(2)
     
 #     stock_entities = db_crud.get_stock_in_market()

@@ -134,18 +134,18 @@ if __name__ == '__main__':
         stock_entities = db_crud.get_stock_in_pool()
         for entity in stock_entities:
             level = rating.get_stock_rating(entity.codeId)
-            log.info(entity.codeId +"'s rating is " + level)
-            entity.rating = level
+            if level is not None:
+                log.info(entity.codeId + "(" + entity.name + ")'s rating is " + level)
+                entity.rating = level
              
-        stock_entities = db_crud.get_stock_in_market()
-        for entity in stock_entities:
-            if db_crud.is_id_in_pool(entity.codeId):
-                continue
-             
-            level = rating.get_stock_rating(entity.codeId)
-            log.info("Stock " + entity.codeId + "'s level is " + level)
-            if level == "A":
-                StockPoolTbl(codeId=entity.codeId, isDeletable=True, name=entity.name, rating="A")
+#         stock_entities = db_crud.get_stock_in_market()
+#         for entity in stock_entities:
+#             if db_crud.is_id_in_pool(entity.codeId):
+#                 continue
+#              
+#             level = rating.get_stock_rating(entity.codeId)
+#             log.info("Stock " + entity.codeId + "'s level is " + level)
+#             entity.rating = level
                 
     elif args.subparsers_name == "list":
         if args.type == "basic":

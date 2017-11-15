@@ -94,12 +94,12 @@ def reset_observed_config(stock_id=None):
         
         stock_entity.isObserved = False
     else:
-        stock_entities = get_stock_in_pool()
+        stock_entities = get_stock_in_pool(is_observed=True)
         
         for stock_entity in stock_entities:
             stock_entity.isObserved = False
     
-def get_stock_in_pool(stock_id=None, rating=None):
+def get_stock_in_pool(stock_id=None, rating=None, is_observed=None):
     '''
     '''
     
@@ -109,11 +109,12 @@ def get_stock_in_pool(stock_id=None, rating=None):
             return lst[0]
         else:
             return None
+    elif rating is not None:
+        return list(StockPoolTbl.selectBy(rating=rating))
+    elif is_observed is not None:
+        return list(StockPoolTbl.selectBy(isObserved=is_observed))
     else:
-        if rating is None:
-            return list(StockPoolTbl.select())
-        else:
-            return list(StockPoolTbl.selectBy(rating=rating))
+        return list(StockPoolTbl.select())
 
 def get_stocks_by_monitor_flag():
     '''
